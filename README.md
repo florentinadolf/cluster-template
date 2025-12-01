@@ -3,27 +3,22 @@
 > [!CAUTION]
 > **This is a modified fork of the original [onedr0p/cluster-template](https://github.com/onedr0p/cluster-template) project.**
 >
-> This fork has been **significantly modified** to:
-> - Remove all Cloudflare dependencies (cloudflared tunnel, external-dns with Cloudflare provider)
-> - Remove external internet access capabilities
-> - Support **LAN-only access** with k8s-gateway for DNS
-> - Support flexible certificate management (user-provided CA or self-signed)
-> - Remove Flux webhook (periodic sync only)
+> ## Key Modifications from Upstream
+>
+> This fork has been **significantly modified** to support **LAN-only** deployments without external internet access:
+> - **Removed:** All Cloudflare dependencies (cloudflared tunnel, external-dns with Cloudflare provider)
+> - **Removed:** External internet access capabilities and Flux webhook receiver
+> - **Added:** k8s-gateway for automatic DNS resolution within your local network
+> - **Added:** Flexible certificate management (user-provided CA or self-signed certificates)
+> - **Changed:** Flux uses periodic sync only (use `task reconcile` for immediate sync)
 >
 > **⚠️ IMPORTANT: The upstream project maintainers and community will NOT provide support for this fork.** If you encounter issues specific to these modifications, do not seek help in the upstream project's support channels. This fork is provided as-is for users who need a LAN-only Kubernetes cluster without Cloudflare integration.
 >
 > If you need the original functionality with Cloudflare support and external access, please use the upstream project instead: https://github.com/onedr0p/cluster-template
 
-Welcome to a template designed for deploying a **LAN-only** single Kubernetes cluster. Whether you're setting up a cluster at home on bare-metal or virtual machines (VMs), this project aims to simplify the process and make Kubernetes accessible within your local network.
+Welcome to a template designed for deploying a single Kubernetes cluster at home on bare-metal or virtual machines (VMs). This project aims to simplify the process and make Kubernetes accessible within your local network.
 
-At its core, this project leverages [makejinja](https://github.com/mirkolenz/makejinja), a powerful tool for rendering templates. By reading configuration files—such as [cluster.yaml](./cluster.sample.yaml) and [nodes.yaml](./nodes.sample.yaml)—Makejinja generates the necessary configurations to deploy a Kubernetes cluster with the following features:
-
-- Easy configuration through YAML files
-- LAN-only access (no external internet exposure)
-- Automatic DNS via k8s-gateway
-- Flexible certificate management (CA or self-signed)
-- Compatibility with home setups, whether on physical hardware or VMs
-- A modular and extensible approach to cluster deployment and management
+At its core, this project leverages [makejinja](https://github.com/mirkolenz/makejinja), a powerful tool for rendering templates. By reading configuration files—such as [cluster.yaml](./cluster.sample.yaml) and [nodes.yaml](./nodes.sample.yaml)—Makejinja generates the necessary configurations to deploy a Kubernetes cluster with a modular and extensible approach to cluster deployment and management.
 
 With this approach, you'll gain a solid foundation to build and manage your Kubernetes cluster efficiently within your local network.
 
@@ -40,8 +35,6 @@ A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/t
 - Workflow automation w/ [GitHub Actions](https://github.com/features/actions)
 - Dependency automation w/ [Renovate](https://www.mend.io/renovate)
 - Flux `HelmRelease` and `Kustomization` diffs w/ [flux-local](https://github.com/allenporter/flux-local)
-- LAN-only access with automatic DNS resolution via k8s-gateway
-- Flexible HTTPS certificates (user-provided CA or self-signed)
 
 Does this sound cool to you? If so, continue to read on! 👇
 
@@ -493,18 +486,13 @@ These tools offer a variety of solutions to meet your persistent storage needs, 
 ## 🙋 Support
 
 > [!WARNING]
-> **This is a modified fork.** The upstream project maintainers and community will NOT provide support for issues related to the LAN-only modifications, Cloudflare removal, or other changes specific to this fork.
+> As noted in the caution block above, the upstream project will NOT provide support for this fork's modifications.
 
-### For This Fork
+**For fork-specific issues:** Open an issue in this repository if you encounter problems with LAN-only setup, certificate management, or other modifications.
 
-- If you encounter issues specific to the LAN-only setup, certificate management, or other fork-specific features, please open an issue in this repository.
-- General Kubernetes, Talos, and Flux questions may still be answered by the broader community.
+**For general help:** Questions about Kubernetes, Talos, and Flux may be answered by the broader community, but please clarify you're using this fork.
 
-### For the Original Template
-
-If you want to use the original template with Cloudflare support, visit the upstream project:
-- **Upstream Repository:** https://github.com/onedr0p/cluster-template
-- **Community Discord:** [Home Operations](https://discord.gg/home-operations)
+**For the original template:** If you need Cloudflare support and external access, see the [upstream repository](https://github.com/onedr0p/cluster-template) and join the [Home Operations Discord](https://discord.gg/home-operations).
 
 ## 🙌 Related Projects
 
