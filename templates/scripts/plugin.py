@@ -47,47 +47,36 @@ def age_key(key_type: str, file_path: str = 'age.key') -> str:
         raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
 
 
-# Return cloudflare tunnel fields from cloudflare-tunnel.json
-def cloudflare_tunnel_id(file_path: str = 'cloudflare-tunnel.json') -> str:
+# Return the CA certificate from file
+def ca_certificate(file_path: str = None) -> str:
+    if file_path is None:
+        import os
+        file_path = os.environ.get('CA_CERT_PATH')
+    if not file_path:
+        raise ValueError("CA certificate path not provided")
     try:
         with open(file_path, 'r') as file:
-            data = json.load(file)
-        tunnel_id = data.get("TunnelID")
-        if tunnel_id is None:
-            raise KeyError(f"Missing 'TunnelID' key in {file_path}")
-        return tunnel_id
-
+            return file.read().strip()
     except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except json.JSONDecodeError:
-        raise ValueError(f"Could not decode JSON file: {file_path}")
-    except KeyError as e:
-        raise KeyError(f"Error in JSON structure: {e}")
+        raise FileNotFoundError(f"CA certificate file not found: {file_path}")
     except Exception as e:
-        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
+        raise RuntimeError(f"Unexpected error while reading {file_path}: {e}")
 
 
-# Return cloudflare tunnel fields from cloudflare-tunnel.json in TUNNEL_TOKEN format
-def cloudflare_tunnel_secret(file_path: str = 'cloudflare-tunnel.json') -> str:
+# Return the CA private key from file
+def ca_private_key(file_path: str = None) -> str:
+    if file_path is None:
+        import os
+        file_path = os.environ.get('CA_KEY_PATH')
+    if not file_path:
+        raise ValueError("CA private key path not provided")
     try:
         with open(file_path, 'r') as file:
-            data = json.load(file)
-        transformed_data = {
-            "a": data["AccountTag"],
-            "t": data["TunnelID"],
-            "s": data["TunnelSecret"]
-        }
-        json_string = json.dumps(transformed_data, separators=(',', ':'))
-        return base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
-
+            return file.read().strip()
     except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except json.JSONDecodeError:
-        raise ValueError(f"Could not decode JSON file: {file_path}")
-    except KeyError as e:
-        raise KeyError(f"Missing key in JSON file {file_path}: {e}")
+        raise FileNotFoundError(f"CA private key file not found: {file_path}")
     except Exception as e:
-        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
+        raise RuntimeError(f"Unexpected error while reading {file_path}: {e}")
 
 
 # Return the GitHub deploy key from github-deploy.key
@@ -138,6 +127,14 @@ class Plugin(makejinja.plugin.Plugin):
         data.setdefault('repository_visibility', 'public')
         data.setdefault('cilium_loadbalancer_mode', 'dsr')
 
+        # If CA cert/key paths are provided, validate and set env vars
+        if data.get('ca_cert_path') and data.get('ca_key_path'):
+            import os
+            os.environ['CA_CERT_PATH'] = data['ca_cert_path']
+            os.environ['CA_KEY_PATH'] = data['ca_key_path']
+        elif data.get('ca_cert_path') or data.get('ca_key_path'):
+            raise ValueError("Both ca_cert_path and ca_key_path must be provided together")
+
         # If all BGP keys are set, enable BGP
         bgp_keys = ['cilium_bgp_router_addr', 'cilium_bgp_router_asn', 'cilium_bgp_node_asn']
         bgp_enabled = all(data.get(key) for key in bgp_keys)
@@ -160,8 +157,8 @@ class Plugin(makejinja.plugin.Plugin):
     def functions(self) -> makejinja.plugin.Functions:
         return [
             age_key,
-            cloudflare_tunnel_id,
-            cloudflare_tunnel_secret,
+            ca_certificate,
+            ca_private_key,
             github_deploy_key,
             github_push_token,
             talos_patches

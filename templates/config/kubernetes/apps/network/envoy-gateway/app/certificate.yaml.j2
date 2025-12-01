@@ -2,11 +2,15 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "${SECRET_DOMAIN/./-}-production"
+  name: "${SECRET_DOMAIN/./-}-tls-cert"
 spec:
-  secretName: "${SECRET_DOMAIN/./-}-production-tls"
+  secretName: "${SECRET_DOMAIN/./-}-tls"
   issuerRef:
-    name: letsencrypt-production
+#% if ca_cert_path and ca_key_path %#
+    name: ca-issuer
+#% else %#
+    name: selfsigned-issuer
+#% endif %#
     kind: ClusterIssuer
   commonName: "${SECRET_DOMAIN}"
   dnsNames: ["${SECRET_DOMAIN}", "*.${SECRET_DOMAIN}"]

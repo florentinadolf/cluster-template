@@ -55,17 +55,19 @@ repository_name: ""
 #    (OPTIONAL) / (DEFAULT: "public") / (NOTE: See the README for information when set private)
 # repository_visibility: ""
 
-# -- Domain you wish to use from your Cloudflare account
-#    (REQUIRED) / (e.g. "example.com")
-cloudflare_domain: ""
+# -- Your local domain name for the cluster
+#    (REQUIRED) / (e.g. "home.local" or "homelab.internal")
+domain: ""
 
-# -- API Token for Cloudflare with the 'Zone:DNS:Edit' and 'Account:Cloudflare Tunnel:Read' permissions
-#    (REQUIRED) (NOTE: See the README for information on creating this)
-cloudflare_token: ""
+# -- Optional: Path to your CA certificate file (for custom CA)
+#    (OPTIONAL) / If not provided, self-signed certificates will be generated
+#    (NOTE: Both ca_cert_path and ca_key_path must be provided together)
+# ca_cert_path: ""
 
-# -- The Load balancer IP for the external gateway
-#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
-cloudflare_gateway_addr: ""
+# -- Optional: Path to your CA private key file (for custom CA)
+#    (OPTIONAL) / If not provided, self-signed certificates will be generated
+#    (NOTE: Both ca_cert_path and ca_key_path must be provided together)
+# ca_key_path: ""
 
 # -- The load balancer mode for cilium.
 #    (OPTIONAL) / (DEFAULT: "dsr") / (NOTE: accepted values are 'dsr' or 'snat') / (REF: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/)
